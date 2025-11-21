@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// NOTE: SQLite não suporta Enums, então usamos String.
+// A validação será feita no código (Zod) e no Frontend.
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  age       Int
+  weight    Float
+  height    Int
+  
+  goal      String   // Alterado de Goal para String
+  level     String   // Alterado de Level para String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  progressHistory UserProgress[]
+  posts           Post[]
+  followers       Follows[] @relation("following")
+  following       Follows[] @relation("follower")
+}
+
+model Exercise {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  muscleGroup   String    // Alterado de MuscleGroup para String
+  videoUrl      String?
+  templates     WorkoutExercise[]
+}
+
+model WorkoutTemplate {
+  id     String @id @default(cuid())
+  name   String 
+  goal   String   // Alterado para String
+  level  String   // Alterado para String
+  exercises WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id         String @id @default(cuid())
+  templateId String
+  template   WorkoutTemplate @relation(fields: [templateId], references: [id])
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  sets       String 
+  reps       String
+  rest       String 
+  @@unique([templateId, exerciseId])
+}
+
+model UserProgress {
+  id     String   @id @default(cuid())
+  date   DateTime @default(now())
+  weight Float    
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  imageUrl  String 
+  caption   String?
+  createdAt DateTime @default(now())
+  authorId  String
+  author    User   @relation(fields: [authorId], references: [id])
+}
+
+model Follows {
+  followerId  String
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  followingId String
+  following   User   @relation("following", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+}
