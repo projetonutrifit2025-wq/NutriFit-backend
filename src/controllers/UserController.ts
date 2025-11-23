@@ -2,21 +2,20 @@ import { Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { hash, compare } from 'bcryptjs';
 import { calculateUserLevel } from '../services/UserService';
-
 import { sign } from 'jsonwebtoken';
 import { AuthRequest } from '../types/AuthRequest';
-import { z } from 'zod';
+import { z, ZodError } from 'zod'; // Importe ZodError
 
 export class UserController {
-
+  
   async register(req: Request, res: Response) {
     const registerSchema = z.object({
-      name: z.string().min(3),
-      email: z.string().email(),
-      password: z.string().min(6),
-      age: z.number().min(12),
-      weight: z.number().positive(),
-      height: z.number().positive(),
+      name: z.string().min(3, "O nome deve ter pelo menos 3 letras"),
+      email: z.string().email("E-mail inválido"),
+      password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+      age: z.number().min(12, "Idade mínima é 12 anos"),
+      weight: z.number().positive("Peso deve ser positivo"),
+      height: z.number().positive("Altura deve ser positiva"),
       goal: z.enum(["PERDER_PESO", "GANHAR_MASSA", "MANTER_SAUDE"]),
     });
 
@@ -34,15 +33,22 @@ export class UserController {
           ...data,
           password: passwordHash,
           level: level,
-          goal: data.goal // Remova o 'as Goal', pois agora é string
+          goal: data.goal
         }
       });
+
       const { password: _, ...userWithoutPassword } = user;
       return res.status(201).json(userWithoutPassword);
 
     } catch (error: any) {
-      if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors[0].message });
-      return res.status(500).json({ error: 'Erro interno.' });
+      // CORREÇÃO DO ERRO DO ZOD AQUI:
+      if (error instanceof ZodError) {
+        // Usamos .issues[0].message em vez de .errors
+        return res.status(400).json({ error: error.issues[0].message });
+      }
+      // Log do erro real para ajudar no debug
+      console.error(error);
+      return res.status(500).json({ error: 'Erro interno do servidor.' });
     }
   }
 
