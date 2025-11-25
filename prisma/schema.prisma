@@ -3,13 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" 
-  url = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// NOTE: SQLite não suporta Enums, então usamos String.
-// A validação será feita no código (Zod) e no Frontend.
-
+// Usamos String em vez de Enum para máxima compatibilidade com Vercel/Neon
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -18,13 +16,10 @@ model User {
   age       Int
   weight    Float
   height    Int
-  
-  goal      String   // Alterado de Goal para String
-  level     String   // Alterado de Level para String
-  
+  goal      String   
+  level     String   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   progressHistory UserProgress[]
   posts           Post[]
   followers       Follows[] @relation("following")
@@ -34,7 +29,7 @@ model User {
 model Exercise {
   id            String    @id @default(cuid())
   name          String    @unique
-  muscleGroup   String    // Alterado de MuscleGroup para String
+  muscleGroup   String    
   videoUrl      String?
   templates     WorkoutExercise[]
 }
@@ -42,8 +37,8 @@ model Exercise {
 model WorkoutTemplate {
   id     String @id @default(cuid())
   name   String 
-  goal   String   // Alterado para String
-  level  String   // Alterado para String
+  goal   String   
+  level  String   
   exercises WorkoutExercise[]
 }
 
