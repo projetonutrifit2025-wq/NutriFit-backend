@@ -17,6 +17,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/feed', feedRoutes);
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>Backend NutriFit Online 🚀</h1>
+    <p>O servidor está a funcionar corretamente.</p>
+    <p>Use os endpoints /api/users, /api/workouts, etc.</p>
+  `);
+});
 
 app.listen(port, () => {
   console.log(`🚀 Servidor rodando na porta ${port}`);
