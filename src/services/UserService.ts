@@ -1,6 +1,12 @@
 
+export function calculateUserLevel(birthDate: Date, weight: number, height: number): string {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
 
-export function calculateUserLevel(age: number, weight: number, height: number): string {
   // Retornamos strings puras agora
   if (age < 18 || weight < 60) return "INICIANTE";
   if (age > 40 || weight > 90) return "INTERMEDIARIO";

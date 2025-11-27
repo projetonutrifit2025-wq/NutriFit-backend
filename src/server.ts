@@ -10,11 +10,12 @@ import { feedRoutes } from './routes/FeedRoutes';
 const app = express();
 const port = process.env.PORT || 3333;
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/feed', feedRoutes);
+
 app.get('/', (req, res) => {
   res.send(`
     <h1>Backend NutriFit Online 🚀</h1>
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
     <p>Use os endpoints /api/users, /api/workouts, etc.</p>
   `);
 });
+
 app.listen(port, () => {
   console.log(`🚀 Servidor rodando na porta ${port}`);
 });

@@ -3,7 +3,7 @@ import { verify } from 'jsonwebtoken';
 import { AuthRequest } from '../types/AuthRequest';
 
 interface TokenPayload {
-  userId: string;
+  id: string;
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
@@ -20,9 +20,9 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
     if (!secret) throw new Error('JWT_SECRET não definido');
 
     const decoded = verify(token, secret);
-    const { userId } = decoded as TokenPayload;
+    const { id } = decoded as TokenPayload;
 
-    req.userId = userId;
+    req.userId = id;
     return next();
   } catch (error) {
     return res.status(401).json({ error: 'Token inválido.' });

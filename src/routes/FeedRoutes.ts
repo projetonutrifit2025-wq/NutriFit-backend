@@ -7,5 +7,6 @@ const feedController = new FeedController();
 
 feedRoutes.post('/', authMiddleware, feedController.createPost);
 feedRoutes.get('/', authMiddleware, feedController.getFeed);
+feedRoutes.delete('/:id', authMiddleware, feedController.deletePost);
 
 export { feedRoutes };
