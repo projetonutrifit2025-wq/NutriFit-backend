@@ -25,6 +25,8 @@ model User {
   posts           Post[]
   followers       Follows[] @relation("following")
   following       Follows[] @relation("follower")
+  likes           Like[]
+  comments        Comment[]
 }
 
 model Exercise {
@@ -71,6 +73,8 @@ model Post {
   createdAt DateTime @default(now())
   authorId  String
   author    User   @relation(fields: [authorId], references: [id])
+  likes     Like[]
+  comments  Comment[]
 }
 
 model Follows {
@@ -80,4 +84,25 @@ model Follows {
   following   User   @relation("following", fields: [followingId], references: [id])
 
   @@id([followerId, followingId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

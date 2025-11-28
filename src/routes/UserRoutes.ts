@@ -13,5 +13,7 @@ userRoutes.get('/me', authMiddleware, userController.me);
 userRoutes.put('/me', authMiddleware, userController.updateProfile);
 userRoutes.post('/weight', authMiddleware, userController.addWeight);
 userRoutes.get('/weight/history', authMiddleware, userController.getWeightHistory);
+userRoutes.get('/search', authMiddleware, userController.search);
+userRoutes.get('/profile/:id', authMiddleware, userController.getProfile);
 
 export { userRoutes };

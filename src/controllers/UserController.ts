@@ -226,4 +226,83 @@ export class UserController {
       return res.status(500).json({ error: 'Error fetching history' });
     }
   }
+
+  async search(req: Request, res: Response) {
+    try {
+      const { query } = req.query;
+
+      if (!query || typeof query !== 'string') {
+        return res.json([]);
+      }
+
+      const users = await prisma.user.findMany({
+        where: {
+          name: {
+            contains: query,
+            mode: 'insensitive' // Requires PostgreSQL or specific Prisma config, usually works if supported
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          profileImage: true,
+          goal: true
+        },
+        take: 20
+      });
+
+      return res.json(users);
+    } catch (error) {
+      console.error('Search Error:', error);
+      return res.status(500).json({ error: 'Error searching users' });
+    }
+  }
+
+  async getProfile(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const currentUserId = req.userId;
+
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          profileImage: true,
+          goal: true,
+          level: true,
+          _count: {
+            select: {
+              followers: true,
+              following: true,
+              posts: true
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Check if current user is following this user
+      let isFollowing = false;
+      if (currentUserId) {
+        const follow = await prisma.follows.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: currentUserId,
+              followingId: id
+            }
+          }
+        });
+        isFollowing = !!follow;
+      }
+
+      return res.json({ ...user, isFollowing });
+    } catch (error) {
+      console.error('Get Profile Error:', error);
+      return res.status(500).json({ error: 'Error fetching profile' });
+    }
+  }
 }
